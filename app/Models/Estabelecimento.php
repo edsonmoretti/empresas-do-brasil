@@ -69,7 +69,7 @@ class Estabelecimento extends Model
         return $this->municipio()->first()->nome ?? null;
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         $array = parent::toArray();
         $array['municipio'] = $this->municipio_nome;

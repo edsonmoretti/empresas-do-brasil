@@ -30,4 +30,21 @@ class EmpresaController extends ApiController
         $response = $this->paginate($request, $builder);
         return response()->json($response);
     }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param string $cnpj
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function getByCnpj(string $cnpj): JsonResponse
+    {
+        $empresa = Empresa::filter(['cnpj' => $cnpj])->first();
+        if ($empresa) {
+            $empresa->load(['estabelecimento', 'qsa']);
+            return response()->json($empresa);
+        }
+        return response()->json(['message' => 'Empresa não encontrada'], 404);
+    }
 }

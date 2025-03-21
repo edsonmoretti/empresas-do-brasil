@@ -17,16 +17,16 @@ class ImportDadosDasEmpresas extends Command
     {
         $baseDir = $this->getDirDados();
         $this->importCsv(
+            $baseDir . '/arquivos/descompactados/estabelecimentos',
+            Estabelecimento::class
+        );
+        $this->importCsv(
             $baseDir . '/arquivos/descompactados/empresas',
             Empresa::class
         );
         $this->importCsv(
             $baseDir . '/arquivos/descompactados/socios',
             Socio::class
-        );
-        $this->importCsv(
-            $baseDir . '/arquivos/descompactados/estabelecimentos',
-            Estabelecimento::class
         );
     }
 
@@ -41,6 +41,7 @@ class ImportDadosDasEmpresas extends Command
 
     private function importCsv($filesDir, $modelClass)
     {
+        // TODO: checar falha desse no estabelecimento Y0 (59353055, 0001, 28, 1, DISK CALHAS E COBERTURAS METALICAS, 02, 20250207, 00, , 105, 20250207, 4120400, 7732201,4330499,4399199,2512800,2542000,2511000,8121400,8011101,8230001,9319101,7711000,7719501, RUA, RUA 5 CHACARA 117B LOTE, 57, , SETOR HABITACIONAL VICENTE PIRES, 72006185, DF, 9701, 61, 83011130, 0000, 00000000, , , DISK.CALHASERUFOS@GMAIL.COM, , , 2025-03-21 10:09:22, 2025-03-21 10:09:22) returning "id")
         $files = glob($filesDir . '/*.CSV');
         $columns = (new $modelClass)->getFillable();
 

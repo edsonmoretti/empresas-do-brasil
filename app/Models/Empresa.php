@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use function Symfony\Component\String\u;
 
 /**
  * @property Estabelecimento $estabelecimento
@@ -24,8 +24,17 @@ class Empresa extends Model
     public static array $filterable = [
         'cnpj_basico',
         'razao_social:contains',
-
+        'cnpj:static-function|WhereCnpj',
     ];
+
+    public static function WhereCnpj(Builder $builder, $value): Builder
+    {
+        // join cnpj_basico em estabelecimento e filtra por cnpj
+        return $builder->whereHas('estabelecimento', function ($query) use ($value) {
+            // colunas cnpj_basico,cnpj_ordem,cnpj_dv (as 3 colunas formam o cnpj)
+            $query->whereRaw('CONCAT(cnpj_basico, cnpj_ordem, cnpj_dv) = ?', [$value]);
+        });
+    }
 
     public function estabelecimento(): HasOne
     {
@@ -49,12 +58,26 @@ class Empresa extends Model
             ...$this->estabelecimento->toArray(),
         ];
 
+        $enderecoCompleto = $array['tipo_logradouro'] . ' ' . $array['logradouro'] . ', ' . $array['numero'] . ' - ' . $array['bairro'] . ', ' . $array['municipio'] . ' - ' . $array['uf'] . ', CEP: ' . $array['cep'];
+        $enderecoCompleto = str_replace('  ', ' ', $enderecoCompleto);
+
         // reorganizando o array
         $cnpjArray = [
             'cnpj' => $array['cnpj'],
-            'cnpj_formatado' => formatCnpj($array['cnpj'])
+            'cnpj_formatado' => formatCnpj($array['cnpj']),
+            'razao_social' => $array['razao_social'],
+            'nome_fantasia' => $array['nome_fantasia'],
+            'endereco_completo' => $enderecoCompleto,
         ];
-        $array = array_merge($cnpjArray,$array);
+
+        $array = array_merge($cnpjArray, $array);
+
+        if (is_string($array['cnae_fiscal_secundaria'])) {
+            $array['cnae_fiscal_secundaria'] = explode(',', $array['cnae_fiscal_secundaria']);
+        }
+
+        // Correio eletronico em minúsculo
+        $array['correio_eletronico'] = strtolower($array['correio_eletronico']);
 
         // Coloca o QSA no final do array (antes da data de atualização)
         $qsa = $array['qsa'];

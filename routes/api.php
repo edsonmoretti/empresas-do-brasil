@@ -11,5 +11,5 @@ Route::group(['prefix' => 'estabelecimento'], function () {
 
 Route::group(['prefix' => 'empresas'], function () {
     Route::get('/', [EmpresaController::class, 'index']);
-    Route::get('/{id}', [EmpresaController::class, 'show']);
+    Route::get('/cnpj/{cnpj}', [EmpresaController::class, 'getByCnpj']);
 });
