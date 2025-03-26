@@ -1,0 +1,25 @@
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Laravel specific
+/vendor
+/.env
+/.env.*.php
+/.env.php
+/.env.testing
+/.env.testing.php
+/storage/*.key
+/public/hot
+/public/storage
+/storage/app/public
+/storage/debugbar
+/storage/framework/cache/data
+/storage/framework/sessions
+/storage/framework/testing
+/storage/framework/views
+/storage/logs
+
+# Include the directory storage\app\dados_abertos_cnpj
+/storage/app/dados_abertos_cnpj/arquivos
+/storage/app/dados_abertos_cnpj/scripts

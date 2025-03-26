@@ -1,0 +1,13 @@
+
+version: '3'
+
+services:
+  dados-das-empresas:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: edsonmoretti/dados-das-empresas-tein:1.0.0
+    ports:
+      - "8000:80"
+    volumes:
+      - .:/var/www/html

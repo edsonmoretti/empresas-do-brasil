@@ -205,8 +205,8 @@ class ScriptsEmpresas extends Command
             $batShContent .= "done\n";
 
             // Renomeia os arquivos com a extensão especificada
-            $batShContent .= "for f in \"$directoryDestiny/*.$extension\"; do\n";
-            $batShContent .= "    mv \"$f\" \"\${f%.$extension}.CSV\"\n";
+            $batShContent .= "for f in \"$directoryDestiny/*.SOCIOCSV\"; do\n";
+            $batShContent .= "    mv \"$f\" \"\${f%.SOCIOCSV}.CSV\"\n";
             $batShContent .= "done\n";
         }
 
@@ -225,37 +225,23 @@ class ScriptsEmpresas extends Command
         $establishmentFiles = $this->getFilesFromDirectory($mostRecentUrl, 'Estabelecimento');
         $companiesFiles = $this->getFilesFromDirectory($mostRecentUrl, 'Empresa');
 
-
         // Gera os scripts de download e descompactação para sócios
         echo "Gerando scripts de download e descompactação para sócios...\n";
         $sociosName = 'socios';
-        $this->generateDownloadScript(
-            $sociosFiles,
-            $sociosName,
-        );
-        $this->generateUnzipScript(
-            $sociosName,
-            'SOCIOCSV'
-        );
+        $this->generateDownloadScript($sociosFiles, $sociosName);
+        $this->generateUnzipScript($sociosName, 'SOCIOCSV');
 
         // Gera os scripts de download e descompactação para estabelecimentos
+        echo "Gerando scripts de download e descompactação para estabelecimentos...\n";
         $establishmentName = 'estabelecimentos';
-        $this->generateDownloadScript($establishmentFiles, $establishmentName, 'baixar_estabelecimentos');
-        $this->generateUnzipScript(
-            $establishmentName,
-            'ESTABELE'
-        );
+        $this->generateDownloadScript($establishmentFiles, $establishmentName);
+        $this->generateUnzipScript($establishmentName, 'ESTABELE');
 
         // Gera os scripts de download e descompactação para empresas
+        echo "Gerando scripts de download e descompactação para empresas...\n";
         $companyName = 'empresas';
-        $this->generateDownloadScript(
-            $companiesFiles,
-            $companyName
-        );
-
-        $this->generateUnzipScript(
-            $companyName,
-            'EMPRECSV'
-        );
+        $this->generateDownloadScript($companiesFiles, $companyName);
+        $this->generateUnzipScript($companyName, 'EMPRECSV');
     }
 }
+
