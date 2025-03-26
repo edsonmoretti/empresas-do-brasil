@@ -6,6 +6,7 @@ use App\Models\Empresa;
 use App\Models\Estabelecimento;
 use App\Models\Socio;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use League\Csv\Reader;
 
 class ImportDadosDasEmpresas extends Command
@@ -41,7 +42,6 @@ class ImportDadosDasEmpresas extends Command
 
     private function importCsv($filesDir, $modelClass)
     {
-        // TODO: checar falha desse no estabelecimento Y0 (59353055, 0001, 28, 1, DISK CALHAS E COBERTURAS METALICAS, 02, 20250207, 00, , 105, 20250207, 4120400, 7732201,4330499,4399199,2512800,2542000,2511000,8121400,8011101,8230001,9319101,7711000,7719501, RUA, RUA 5 CHACARA 117B LOTE, 57, , SETOR HABITACIONAL VICENTE PIRES, 72006185, DF, 9701, 61, 83011130, 0000, 00000000, , , DISK.CALHASERUFOS@GMAIL.COM, , , 2025-03-21 10:09:22, 2025-03-21 10:09:22) returning "id")
         $files = glob($filesDir . '/*.CSV');
         $columns = (new $modelClass)->getFillable();
 
@@ -68,30 +68,36 @@ class ImportDadosDasEmpresas extends Command
                     $data[] = $row;
                     if (count($data) >= 1000) {
                         $counter += count($data);
-                        $this->insertOrUpdate($modelClass, $data);
+                        $this->insertOrUpdate($modelClass, $data, $filesDir);
                         $data = [];
                         $substringuedEndFileName = substr($file, -50);
                         $this->info("Inserted/Updated $counter records from file: ..." . $substringuedEndFileName);
                     }
                 } catch (\Exception $e) {
                     $this->error($e->getMessage());
+                    Log::error($e->getMessage());
+                    $this->saveErrorData($row, $filesDir);
                     continue;
                 }
             }
 
             if (!empty($data)) {
-                $this->insertOrUpdate($modelClass, $data);
+                $this->insertOrUpdate($modelClass, $data, $filesDir);
             }
         }
     }
 
-    private function insertOrUpdate($modelClass, $data)
+    private function insertOrUpdate($modelClass, $data, $dir)
     {
         foreach ($data as $row) {
             try {
                 $modelClass::updateOrCreate($row);
             } catch (\Exception $e) {
+                Log::error($e->getMessage());
                 $this->error($e->getMessage());
+
+                // Salva os dados que deram erro em $filesDir/erros
+                $this->saveErrorData($row, $dir);
                 // encerra
                 // exit(1);
                 // wait 3 segs
@@ -100,5 +106,19 @@ class ImportDadosDasEmpresas extends Command
             }
             // algo mais?
         }
+    }
+
+    private function saveErrorData($row, $dir)
+    {
+        $errorDir = $dir . '/erros';
+        if (!is_dir($errorDir)) {
+            mkdir($errorDir, 0777, true);
+        }
+        $errorFile = $errorDir . '/erros.csv';
+        // salva só os dados sem as colunas
+        $row = array_values($row);
+        $fp = fopen($errorFile, 'a');
+        fputcsv($fp, $row);
+        fclose($fp);
     }
 }
