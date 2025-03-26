@@ -136,6 +136,10 @@ class ScriptsEmpresas extends Command
         if (getenv('OS') === 'Windows_NT') {
             $ext = 'bat';
             $batShContent = "@echo off\n";
+
+            // Limpa a pasta (apaga arquivos velhos
+            $batShContent .= "del /q \"$directory\\*\"\n";
+
             $batShContent .= "mkdir \"$directory\"\n";
             foreach ($files as $file) {
                 $batShContent .= "curl -o \"$directory\\" . basename($file) . "\" " . $file . "\n";
@@ -143,6 +147,9 @@ class ScriptsEmpresas extends Command
         } else {
             $ext = 'sh';
             $batShContent = "#!/bin/bash\n";
+            // Limpa a pasta (apaga arquivos velhos
+            $batShContent .= "rm -f \"$directory/*\"\n";
+
             $batShContent .= "mkdir -p \"$directory\"\n";
             foreach ($files as $file) {
                 $batShContent .= "curl -o \"$directory/" . basename($file) . "\" " . $file . "\n";

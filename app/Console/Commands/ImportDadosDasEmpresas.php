@@ -67,12 +67,6 @@ class ImportDadosDasEmpresas extends Command
                     $row = array_combine($columns, $record);
                     $data[] = $row;
                     if (count($data) >= 1000) {
-                        // remove todos que não são UF = PE, Pernambuco, quando o modelo for Estabelecimento
-                        if ($modelClass == Estabelecimento::class) {
-                            $data = array_filter($data, function ($row) {
-                                return $row['uf'] == 'PE' || $row['uf'] == 'Pernambuco';
-                            });
-                        }
                         $counter += count($data);
                         $this->insertOrUpdate($modelClass, $data);
                         $data = [];
