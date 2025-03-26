@@ -163,7 +163,7 @@ class ScriptsEmpresas extends Command
     }
 
     // Função para gerar o script de descompactação
-    private function generateUnzipScript($name, $extension): void
+    private function generateUnzipScript($name, $extensionToRename): void
     {
         $ditPath = $this->getDirDados();
         $directoryOrigin = $ditPath . '/arquivos/' . $name;
@@ -185,7 +185,7 @@ class ScriptsEmpresas extends Command
             $batShContent .= ")\n";
 
             // Renomeia os arquivos com a extensão especificada
-            $batShContent .= "for %%f in (\"$directoryDestiny\\*.$extension\") do (\n";
+            $batShContent .= "for %%f in (\"$directoryDestiny\\*.$extensionToRename\") do (\n";
             $batShContent .= "    ren \"%%f\" \"%%~nf.CSV\"\n";
             $batShContent .= ")\n";
         } else {
@@ -201,12 +201,12 @@ class ScriptsEmpresas extends Command
 
             // Descompacta os arquivos .zip
             $batShContent .= "for f in \"$directoryOrigin/*.zip\"; do\n";
-            $batShContent .= "    tar -xf \"$f\" -C \"$directoryDestiny\"\n";
+            $batShContent .= "    unzip \"$f\" -d \"$directoryDestiny\"\n";
             $batShContent .= "done\n";
 
             // Renomeia os arquivos com a extensão especificada
-            $batShContent .= "for f in \"$directoryDestiny/*.SOCIOCSV\"; do\n";
-            $batShContent .= "    mv \"$f\" \"\${f%.SOCIOCSV}.CSV\"\n";
+            $batShContent .= "for f in \"$directoryDestiny/*.$extensionToRename\"; do\n";
+            $batShContent .= "    mv \"$f\" \"\${f%.$extensionToRename}.CSV\"\n";
             $batShContent .= "done\n";
         }
 
